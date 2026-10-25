@@ -1977,29 +1977,35 @@ class Wake4(Wake3):
         X2Y = X2 * Y
         XY2 = X * Y2
         X2Y2 = X2 * Y2
+        X3Y = X3 * Y
+        XY3 = X * Y3
 
         def occupied(a, b, c_, d):
             return H[a, b, c_, d] > 0
 
         I00 = s2current(Z, q, Ns, NF, c)
-        if occupied(1, 3, 3, 3) or occupied(1, 3, 4, 4):
+        if occupied(1, 3, 3, 3) or occupied(1, 3, 4, 4) or occupied(1, 3, 3, 4) or occupied(1, 4, 4, 4):
             I10 = s2current(Z, q * X, Ns, NF, c)
-        if occupied(2, 3, 3, 4) or occupied(2, 4, 4, 4):
+        if occupied(2, 3, 3, 4) or occupied(2, 4, 4, 4) or occupied(2, 3, 3, 3) or occupied(2, 3, 4, 4):
             I01 = s2current(Z, q * Y, Ns, NF, c)
-        if occupied(1, 1, 3, 3) or occupied(1, 1, 4, 4):
+        if occupied(1, 1, 3, 3) or occupied(1, 1, 4, 4) or occupied(1, 1, 3, 4):
             I20 = s2current(Z, q * X2, Ns, NF, c)
-        if occupied(2, 2, 3, 3) or occupied(2, 2, 4, 4):
+        if occupied(2, 2, 3, 3) or occupied(2, 2, 4, 4) or occupied(2, 2, 3, 4):
             I02 = s2current(Z, q * Y2, Ns, NF, c)
-        if occupied(1, 2, 3, 4):
+        if occupied(1, 2, 3, 4) or occupied(1, 2, 3, 3) or occupied(1, 2, 4, 4):
             I11 = s2current(Z, q * XY, Ns, NF, c)
-        if occupied(1, 1, 1, 3):
+        if occupied(1, 1, 1, 3) or occupied(1, 1, 1, 4):
             I30 = s2current(Z, q * X3, Ns, NF, c)
-        if occupied(2, 2, 2, 4):
+        if occupied(2, 2, 2, 4) or occupied(2, 2, 2, 3):
             I03 = s2current(Z, q * Y3, Ns, NF, c)
         if occupied(1, 1, 2, 4) or occupied(1, 1, 2, 3):
             I21 = s2current(Z, q * X2Y, Ns, NF, c)
-        if occupied(1, 2, 2, 3):
+        if occupied(1, 2, 2, 3) or occupied(1, 2, 2, 4):
             I12 = s2current(Z, q * XY2, Ns, NF, c)
+        if occupied(1, 1, 1, 2):
+            I31 = s2current(Z, q * X3Y, Ns, NF, c)
+        if occupied(1, 2, 2, 2):
+            I13 = s2current(Z, q * XY3, Ns, NF, c)
         if occupied(1, 1, 1, 1):
             I40 = s2current(Z, q * X4, Ns, NF, c)
         if occupied(2, 2, 2, 2):
@@ -2025,15 +2031,35 @@ class Wake4(Wake3):
         if occupied(2, 2, 2, 2):
             x, w = wake_of(2, 2, 2, 2, I04)
             Pz = Pz + np.interp(Z, x, w, 0, 0)
+        # h1112: 4 X'^3 Y'
+        if occupied(1, 1, 1, 2):
+            x, w = wake_of(1, 1, 1, 2, I31)
+            Pz = Pz + np.interp(Z, x, 4 * w, 0, 0)
+        # h1222: 4 X' Y'^3
+        if occupied(1, 2, 2, 2):
+            x, w = wake_of(1, 2, 2, 2, I13)
+            Pz = Pz + np.interp(Z, x, 4 * w, 0, 0)
         # h1122: 6 X'^2 Y'^2
         if occupied(1, 1, 2, 2):
             x, w = wake_of(1, 1, 2, 2, I22)
             Pz = Pz + np.interp(Z, x, 6 * w, 0, 0)
 
         # ---- mixed / witness terms ----
-        # h1113: 4 X'^3 x  → Wz*X, Wx
+        # h1113: 4 X'^3 x
         if occupied(1, 1, 1, 3):
             x, w = wake_of(1, 1, 1, 3, I30)
+            Pz = Pz + np.interp(Z, x, 4 * w, 0, 0) * X
+            Wx = -Int1h(h, 4 * w)
+            Px = Px + np.interp(Z, x, Wx, 0, 0)
+        # h1114: 4 X'^3 y
+        if occupied(1, 1, 1, 4):
+            x, w = wake_of(1, 1, 1, 4, I30)
+            Pz = Pz + np.interp(Z, x, 4 * w, 0, 0) * Y
+            Wy = -Int1h(h, 4 * w)
+            Py = Py + np.interp(Z, x, Wy, 0, 0)
+        # h2223: 4 Y'^3 x
+        if occupied(2, 2, 2, 3):
+            x, w = wake_of(2, 2, 2, 3, I03)
             Pz = Pz + np.interp(Z, x, 4 * w, 0, 0) * X
             Wx = -Int1h(h, 4 * w)
             Px = Px + np.interp(Z, x, Wx, 0, 0)
@@ -2043,24 +2069,30 @@ class Wake4(Wake3):
             Pz = Pz + np.interp(Z, x, 4 * w, 0, 0) * Y
             Wy = -Int1h(h, 4 * w)
             Py = Py + np.interp(Z, x, Wy, 0, 0)
+        # h1123: 12 X'^2 Y' x
+        if occupied(1, 1, 2, 3):
+            x, w = wake_of(1, 1, 2, 3, I21)
+            Pz = Pz + np.interp(Z, x, 12 * w, 0, 0) * X
+            Wx = -Int1h(h, 12 * w)
+            Px = Px + np.interp(Z, x, Wx, 0, 0)
         # h1124: 12 X'^2 Y' y
         if occupied(1, 1, 2, 4):
             x, w = wake_of(1, 1, 2, 4, I21)
             Pz = Pz + np.interp(Z, x, 12 * w, 0, 0) * Y
             Wy = -Int1h(h, 12 * w)
             Py = Py + np.interp(Z, x, Wy, 0, 0)
-        # h1223: 12 X' Y'^2 x  (horz h1223; vert image of h1124)
+        # h1223: 12 X' Y'^2 x
         if occupied(1, 2, 2, 3):
             x, w = wake_of(1, 2, 2, 3, I12)
             Pz = Pz + np.interp(Z, x, 12 * w, 0, 0) * X
             Wx = -Int1h(h, 12 * w)
             Px = Px + np.interp(Z, x, Wx, 0, 0)
-        # h1123: 12 X'^2 Y' x  (zero for parallel plates of either orientation)
-        if occupied(1, 1, 2, 3):
-            x, w = wake_of(1, 1, 2, 3, I21)
-            Pz = Pz + np.interp(Z, x, 12 * w, 0, 0) * X
-            Wx = -Int1h(h, 12 * w)
-            Px = Px + np.interp(Z, x, Wx, 0, 0)
+        # h1224: 12 X' Y'^2 y
+        if occupied(1, 2, 2, 4):
+            x, w = wake_of(1, 2, 2, 4, I12)
+            Pz = Pz + np.interp(Z, x, 12 * w, 0, 0) * Y
+            Wy = -Int1h(h, 12 * w)
+            Py = Py + np.interp(Z, x, Wy, 0, 0)
 
         # h1133: 6 X'^2 x^2
         if occupied(1, 1, 3, 3):
@@ -2068,6 +2100,14 @@ class Wake4(Wake3):
             Pz = Pz + np.interp(Z, x, 6 * w, 0, 0) * X2
             Wx = -Int1h(h, 12 * w)
             Px = Px + np.interp(Z, x, Wx, 0, 0) * X
+        # h1134: 12 X'^2 x y
+        if occupied(1, 1, 3, 4):
+            x, w = wake_of(1, 1, 3, 4, I20)
+            Pz = Pz + np.interp(Z, x, 12 * w, 0, 0) * XY
+            Wx = -Int1h(h, 12 * w)
+            Wy = -Int1h(h, 12 * w)
+            Px = Px + np.interp(Z, x, Wx, 0, 0) * Y
+            Py = Py + np.interp(Z, x, Wy, 0, 0) * X
         # h1144: 6 X'^2 y^2
         if occupied(1, 1, 4, 4):
             x, w = wake_of(1, 1, 4, 4, I20)
@@ -2080,6 +2120,14 @@ class Wake4(Wake3):
             Pz = Pz + np.interp(Z, x, 6 * w, 0, 0) * X2
             Wx = -Int1h(h, 12 * w)
             Px = Px + np.interp(Z, x, Wx, 0, 0) * X
+        # h2234: 12 Y'^2 x y
+        if occupied(2, 2, 3, 4):
+            x, w = wake_of(2, 2, 3, 4, I02)
+            Pz = Pz + np.interp(Z, x, 12 * w, 0, 0) * XY
+            Wx = -Int1h(h, 12 * w)
+            Wy = -Int1h(h, 12 * w)
+            Px = Px + np.interp(Z, x, Wx, 0, 0) * Y
+            Py = Py + np.interp(Z, x, Wy, 0, 0) * X
         # h2244: 6 Y'^2 y^2
         if occupied(2, 2, 4, 4):
             x, w = wake_of(2, 2, 4, 4, I02)
@@ -2087,6 +2135,12 @@ class Wake4(Wake3):
             Wy = -Int1h(h, 12 * w)
             Py = Py + np.interp(Z, x, Wy, 0, 0) * Y
 
+        # h1233: 12 X' Y' x^2
+        if occupied(1, 2, 3, 3):
+            x, w = wake_of(1, 2, 3, 3, I11)
+            Pz = Pz + np.interp(Z, x, 12 * w, 0, 0) * X2
+            Wx = -Int1h(h, 24 * w)
+            Px = Px + np.interp(Z, x, Wx, 0, 0) * X
         # h1234: 24 X' Y' x y
         if occupied(1, 2, 3, 4):
             x, w = wake_of(1, 2, 3, 4, I11)
@@ -2095,6 +2149,12 @@ class Wake4(Wake3):
             Wy = -Int1h(h, 24 * w)
             Px = Px + np.interp(Z, x, Wx, 0, 0) * Y
             Py = Py + np.interp(Z, x, Wy, 0, 0) * X
+        # h1244: 12 X' Y' y^2
+        if occupied(1, 2, 4, 4):
+            x, w = wake_of(1, 2, 4, 4, I11)
+            Pz = Pz + np.interp(Z, x, 12 * w, 0, 0) * Y2
+            Wy = -Int1h(h, 24 * w)
+            Py = Py + np.interp(Z, x, Wy, 0, 0) * Y
 
         # h1333: 4 X' x^3
         if occupied(1, 3, 3, 3):
@@ -2102,6 +2162,14 @@ class Wake4(Wake3):
             Pz = Pz + np.interp(Z, x, 4 * w, 0, 0) * X3
             Wx = -Int1h(h, 12 * w)
             Px = Px + np.interp(Z, x, Wx, 0, 0) * X2
+        # h1334: 12 X' x^2 y
+        if occupied(1, 3, 3, 4):
+            x, w = wake_of(1, 3, 3, 4, I10)
+            Pz = Pz + np.interp(Z, x, 12 * w, 0, 0) * (X2 * Y)
+            Wx = -Int1h(h, 24 * w)
+            Wy = -Int1h(h, 12 * w)
+            Px = Px + np.interp(Z, x, Wx, 0, 0) * XY
+            Py = Py + np.interp(Z, x, Wy, 0, 0) * X2
         # h1344: 12 X' x y^2
         if occupied(1, 3, 4, 4):
             x, w = wake_of(1, 3, 4, 4, I10)
@@ -2110,6 +2178,18 @@ class Wake4(Wake3):
             Wy = -Int1h(h, 24 * w)
             Px = Px + np.interp(Z, x, Wx, 0, 0) * Y2
             Py = Py + np.interp(Z, x, Wy, 0, 0) * XY
+        # h1444: 4 X' y^3
+        if occupied(1, 4, 4, 4):
+            x, w = wake_of(1, 4, 4, 4, I10)
+            Pz = Pz + np.interp(Z, x, 4 * w, 0, 0) * Y3
+            Wy = -Int1h(h, 12 * w)
+            Py = Py + np.interp(Z, x, Wy, 0, 0) * Y2
+        # h2333: 4 Y' x^3
+        if occupied(2, 3, 3, 3):
+            x, w = wake_of(2, 3, 3, 3, I01)
+            Pz = Pz + np.interp(Z, x, 4 * w, 0, 0) * X3
+            Wx = -Int1h(h, 12 * w)
+            Px = Px + np.interp(Z, x, Wx, 0, 0) * X2
         # h2334: 12 Y' x^2 y
         if occupied(2, 3, 3, 4):
             x, w = wake_of(2, 3, 3, 4, I01)
@@ -2118,6 +2198,14 @@ class Wake4(Wake3):
             Wy = -Int1h(h, 12 * w)
             Px = Px + np.interp(Z, x, Wx, 0, 0) * XY
             Py = Py + np.interp(Z, x, Wy, 0, 0) * X2
+        # h2344: 12 Y' x y^2
+        if occupied(2, 3, 4, 4):
+            x, w = wake_of(2, 3, 4, 4, I01)
+            Pz = Pz + np.interp(Z, x, 12 * w, 0, 0) * (X * Y2)
+            Wx = -Int1h(h, 12 * w)
+            Wy = -Int1h(h, 24 * w)
+            Px = Px + np.interp(Z, x, Wx, 0, 0) * Y2
+            Py = Py + np.interp(Z, x, Wy, 0, 0) * XY
         # h2444: 4 Y' y^3
         if occupied(2, 4, 4, 4):
             x, w = wake_of(2, 4, 4, 4, I01)
@@ -2131,12 +2219,28 @@ class Wake4(Wake3):
             Pz = Pz + np.interp(Z, x, w, 0, 0) * X4
             Wx = -Int1h(h, 4 * w)
             Px = Px + np.interp(Z, x, Wx, 0, 0) * X3
+        # h3334: 4 x^3 y
+        if occupied(3, 3, 3, 4):
+            x, w = wake_of(3, 3, 3, 4, I00)
+            Pz = Pz + np.interp(Z, x, 4 * w, 0, 0) * X3Y
+            Wx = -Int1h(h, 12 * w)
+            Wy = -Int1h(h, 4 * w)
+            Px = Px + np.interp(Z, x, Wx, 0, 0) * (X2 * Y)
+            Py = Py + np.interp(Z, x, Wy, 0, 0) * X3
         # h4444: y^4
         if occupied(4, 4, 4, 4):
             x, w = wake_of(4, 4, 4, 4, I00)
             Pz = Pz + np.interp(Z, x, w, 0, 0) * Y4
             Wy = -Int1h(h, 4 * w)
             Py = Py + np.interp(Z, x, Wy, 0, 0) * Y3
+        # h3444: 4 x y^3
+        if occupied(3, 4, 4, 4):
+            x, w = wake_of(3, 4, 4, 4, I00)
+            Pz = Pz + np.interp(Z, x, 4 * w, 0, 0) * XY3
+            Wx = -Int1h(h, 4 * w)
+            Wy = -Int1h(h, 12 * w)
+            Px = Px + np.interp(Z, x, Wx, 0, 0) * Y3
+            Py = Py + np.interp(Z, x, Wy, 0, 0) * (X * Y2)
         # h3344: 6 x^2 y^2
         if occupied(3, 3, 4, 4):
             x, w = wake_of(3, 3, 4, 4, I00)

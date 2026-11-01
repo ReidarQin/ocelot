@@ -1715,24 +1715,15 @@ class WakeTableParallelPlate4_origin(WakeTable4):
             h2334 = -amp4
             h3344 = -amp4
 
-        return self._assemble(s, h000, h002, h004, h011, h013, h024, h033,
-                              h112, h114, h233, h334, h123, h134, h222, h224, h244, h444,
-                              h1111, h1113, h1122, h1124, h1133, h1144, h1223, h1234, h1333, h1344,
-                              h2222, h2224, h2233, h2244, h2334, h2444, h3333, h3344, h4444)
-
-    @staticmethod
-    def _assemble(s, h000, h002, h004, h011, h013, h024, h033,
-                  h112, h114, h233, h334, h123, h134, h222, h224, h244, h444,
-                  h1111, h1113, h1122, h1124, h1133, h1144, h1223, h1234, h1333, h1344,
-                  h2222, h2224, h2233, h2244, h2334, h2444, h3333, h3344, h4444):
         N = len(s)
-        out0 = np.append([[N, 0], [0, 0], [0, 0]], np.vstack((s, h000)).T, axis=0)
-        out2 = np.append([[N, 0], [0, 0], [0, 2]], np.vstack((s, h002)).T, axis=0)
-        out4 = np.append([[N, 0], [0, 0], [0, 4]], np.vstack((s, h004)).T, axis=0)
-        out11 = np.append([[N, 0], [0, 0], [0, 11]], np.vstack((s, h011)).T, axis=0)
-        out13 = np.append([[N, 0], [0, 0], [0, 13]], np.vstack((s, h013)).T, axis=0)
-        out24 = np.append([[N, 0], [0, 0], [0, 24]], np.vstack((s, h024)).T, axis=0)
-        out33 = np.append([[N, 0], [0, 0], [0, 33]], np.vstack((s, h033)).T, axis=0)
+        # full coefficients, horizontal, kick is in y 
+        out000 = np.append([[N, 0], [0, 0], [0, 0]], np.vstack((s, h000)).T, axis=0)
+        out002 = np.append([[N, 0], [0, 0], [0, 2]], np.vstack((s, h002)).T, axis=0)
+        out004 = np.append([[N, 0], [0, 0], [0, 4]], np.vstack((s, h004)).T, axis=0)
+        out011 = np.append([[N, 0], [0, 0], [0, 11]], np.vstack((s, h011)).T, axis=0)
+        out013 = np.append([[N, 0], [0, 0], [0, 13]], np.vstack((s, h013)).T, axis=0)
+        out024 = np.append([[N, 0], [0, 0], [0, 24]], np.vstack((s, h024)).T, axis=0)
+        out033 = np.append([[N, 0], [0, 0], [0, 33]], np.vstack((s, h033)).T, axis=0)
         out112 = np.append([[N, 0], [0, 0], [0, 112]], np.vstack((s, h112)).T, axis=0)
         out114 = np.append([[N, 0], [0, 0], [0, 114]], np.vstack((s, h114)).T, axis=0)
         out233 = np.append([[N, 0], [0, 0], [0, 233]], np.vstack((s, h233)).T, axis=0)
@@ -1763,16 +1754,20 @@ class WakeTableParallelPlate4_origin(WakeTable4):
         out3344 = np.append([[N, 0], [0, 0], [0, 3344]], np.vstack((s, h3344)).T, axis=0)
         out4444 = np.append([[N, 0], [0, 0], [0, 4444]], np.vstack((s, h4444)).T, axis=0)
 
-        wake_horz = np.vstack(([[36, 0]], out0, out2, out4, out11, out13, out24, out33, out112, out114, out233, out334, out123, out134, out222, out224, out244, out444, out1111, out1113, out1122, out1124, out1133, out1144, out1223, out1234, out1333, out1344, out2222, out2224, out2233, out2244, out2334, out2444, out3333, out3344, out4444))
+        wake_horz = np.vstack(([[36, 0]], out000, out002, out004, out011, out013, out024, out033,
+                               out112, out114, out233, out334, out123, out134, out222, out224, out244, out444,
+                               out1111, out1113, out1122, out1124, out1133, out1144, out1223, out1234, out1333, out1344,
+                               out2222, out2224, out2233, out2244, out2334, out2444, out3333, out3344, out4444
+                               ))
         # full coefficients, vertical, swap x -> y, x0 -> y0, i.e., 1 -> 2, 3 -> 4, keep 0
         # note h22 = -h11, h44 = -h33
-        out0 = np.append([[N, 0], [0, 0], [0, 0]], np.vstack((s, h000)).T, axis=0)
-        out1 = np.append([[N, 0], [0, 0], [0, 1]], np.vstack((s, h002)).T, axis=0)
-        out3 = np.append([[N, 0], [0, 0], [0, 3]], np.vstack((s, h004)).T, axis=0)
-        out11 = np.append([[N, 0], [0, 0], [0, 11]], np.vstack((s, -h011)).T, axis=0)
-        out13 = np.append([[N, 0], [0, 0], [0, 13]], np.vstack((s, h024)).T, axis=0)
-        out24 = np.append([[N, 0], [0, 0], [0, 24]], np.vstack((s, h013)).T, axis=0)
-        out33 = np.append([[N, 0], [0, 0], [0, 33]], np.vstack((s, -h033)).T, axis=0)
+        out000 = np.append([[N, 0], [0, 0], [0, 0]], np.vstack((s, h000)).T, axis=0)
+        out001 = np.append([[N, 0], [0, 0], [0, 1]], np.vstack((s, h002)).T, axis=0)
+        out003 = np.append([[N, 0], [0, 0], [0, 3]], np.vstack((s, h004)).T, axis=0)
+        out011 = np.append([[N, 0], [0, 0], [0, 11]], np.vstack((s, -h011)).T, axis=0)
+        out013 = np.append([[N, 0], [0, 0], [0, 13]], np.vstack((s, h024)).T, axis=0)
+        out024 = np.append([[N, 0], [0, 0], [0, 24]], np.vstack((s, h013)).T, axis=0)
+        out033 = np.append([[N, 0], [0, 0], [0, 33]], np.vstack((s, -h033)).T, axis=0)
         out122 = np.append([[N, 0], [0, 0], [0, 122]], np.vstack((s, h112)).T, axis=0)
         out223 = np.append([[N, 0], [0, 0], [0, 223]], np.vstack((s, h114)).T, axis=0)
         out144 = np.append([[N, 0], [0, 0], [0, 144]], np.vstack((s, h233)).T, axis=0)
@@ -1803,7 +1798,11 @@ class WakeTableParallelPlate4_origin(WakeTable4):
         out3344 = np.append([[N, 0], [0, 0], [0, 3344]], np.vstack((s, h3344)).T, axis=0)
         out3333 = np.append([[N, 0], [0, 0], [0, 3333]], np.vstack((s, h4444)).T, axis=0)
 
-        wake_vert = np.vstack(([[36, 0]], out0, out1, out3, out11, out13, out24, out33, out122, out223, out144, out344, out124, out234, out111, out113, out133, out333, out2222, out2224, out1122, out1223, out2244, out2233, out1124, out1234, out2444, out2334, out1111, out1113, out1144, out1133, out1344, out1333, out4444, out3344, out3333))
+        wake_vert = np.vstack(([[36, 0]], out000, out001, out003, out011, out013, out024, out033,
+                               out122, out223, out144, out344, out124, out234, out111, out113, out133, out333,
+                               out2222, out2224, out1122, out1223, out2244, out2233, out1124, out1234, out2444, out2334,
+                               out1111, out1113, out1144, out1133, out1344, out1333, out4444, out3344, out3333
+                               ))
         return wake_horz, wake_vert
 
 
@@ -1970,11 +1969,95 @@ class WakeTableParallelPlate4(WakeTable4):
             h1124 = -amp4 * em
             h2334 = -amp4 * em
 
-        return WakeTableParallelPlate4_origin._assemble(
-            s, h000, h002, h004, h011, h013, h024, h033,
-            h112, h114, h233, h334, h123, h134, h222, h224, h244, h444,
-            h1111, h1113, h1122, h1124, h1133, h1144, h1223, h1234, h1333, h1344,
-            h2222, h2224, h2233, h2244, h2334, h2444, h3333, h3344, h4444)
+        N = len(s)
+        # full coefficients, horizontal, kick is in y 
+        out000 = np.append([[N, 0], [0, 0], [0, 0]], np.vstack((s, h000)).T, axis=0)
+        out002 = np.append([[N, 0], [0, 0], [0, 2]], np.vstack((s, h002)).T, axis=0)
+        out004 = np.append([[N, 0], [0, 0], [0, 4]], np.vstack((s, h004)).T, axis=0)
+        out011 = np.append([[N, 0], [0, 0], [0, 11]], np.vstack((s, h011)).T, axis=0)
+        out013 = np.append([[N, 0], [0, 0], [0, 13]], np.vstack((s, h013)).T, axis=0)
+        out024 = np.append([[N, 0], [0, 0], [0, 24]], np.vstack((s, h024)).T, axis=0)
+        out033 = np.append([[N, 0], [0, 0], [0, 33]], np.vstack((s, h033)).T, axis=0)
+        out112 = np.append([[N, 0], [0, 0], [0, 112]], np.vstack((s, h112)).T, axis=0)
+        out114 = np.append([[N, 0], [0, 0], [0, 114]], np.vstack((s, h114)).T, axis=0)
+        out233 = np.append([[N, 0], [0, 0], [0, 233]], np.vstack((s, h233)).T, axis=0)
+        out334 = np.append([[N, 0], [0, 0], [0, 334]], np.vstack((s, h334)).T, axis=0)
+        out123 = np.append([[N, 0], [0, 0], [0, 123]], np.vstack((s, h123)).T, axis=0)
+        out134 = np.append([[N, 0], [0, 0], [0, 134]], np.vstack((s, h134)).T, axis=0)
+        out222 = np.append([[N, 0], [0, 0], [0, 222]], np.vstack((s, h222)).T, axis=0)
+        out224 = np.append([[N, 0], [0, 0], [0, 224]], np.vstack((s, h224)).T, axis=0)
+        out244 = np.append([[N, 0], [0, 0], [0, 244]], np.vstack((s, h244)).T, axis=0)
+        out444 = np.append([[N, 0], [0, 0], [0, 444]], np.vstack((s, h444)).T, axis=0)
+        out1111 = np.append([[N, 0], [0, 0], [0, 1111]], np.vstack((s, h1111)).T, axis=0)
+        out1113 = np.append([[N, 0], [0, 0], [0, 1113]], np.vstack((s, h1113)).T, axis=0)
+        out1122 = np.append([[N, 0], [0, 0], [0, 1122]], np.vstack((s, h1122)).T, axis=0)
+        out1124 = np.append([[N, 0], [0, 0], [0, 1124]], np.vstack((s, h1124)).T, axis=0)
+        out1133 = np.append([[N, 0], [0, 0], [0, 1133]], np.vstack((s, h1133)).T, axis=0)
+        out1144 = np.append([[N, 0], [0, 0], [0, 1144]], np.vstack((s, h1144)).T, axis=0)
+        out1223 = np.append([[N, 0], [0, 0], [0, 1223]], np.vstack((s, h1223)).T, axis=0)
+        out1234 = np.append([[N, 0], [0, 0], [0, 1234]], np.vstack((s, h1234)).T, axis=0)
+        out1333 = np.append([[N, 0], [0, 0], [0, 1333]], np.vstack((s, h1333)).T, axis=0)
+        out1344 = np.append([[N, 0], [0, 0], [0, 1344]], np.vstack((s, h1344)).T, axis=0)
+        out2222 = np.append([[N, 0], [0, 0], [0, 2222]], np.vstack((s, h2222)).T, axis=0)
+        out2224 = np.append([[N, 0], [0, 0], [0, 2224]], np.vstack((s, h2224)).T, axis=0)
+        out2233 = np.append([[N, 0], [0, 0], [0, 2233]], np.vstack((s, h2233)).T, axis=0)
+        out2244 = np.append([[N, 0], [0, 0], [0, 2244]], np.vstack((s, h2244)).T, axis=0)
+        out2334 = np.append([[N, 0], [0, 0], [0, 2334]], np.vstack((s, h2334)).T, axis=0)
+        out2444 = np.append([[N, 0], [0, 0], [0, 2444]], np.vstack((s, h2444)).T, axis=0)
+        out3333 = np.append([[N, 0], [0, 0], [0, 3333]], np.vstack((s, h3333)).T, axis=0)
+        out3344 = np.append([[N, 0], [0, 0], [0, 3344]], np.vstack((s, h3344)).T, axis=0)
+        out4444 = np.append([[N, 0], [0, 0], [0, 4444]], np.vstack((s, h4444)).T, axis=0)
+
+        wake_horz = np.vstack(([[36, 0]], out000, out002, out004, out011, out013, out024, out033,
+                               out112, out114, out233, out334, out123, out134, out222, out224, out244, out444,
+                               out1111, out1113, out1122, out1124, out1133, out1144, out1223, out1234, out1333, out1344,
+                               out2222, out2224, out2233, out2244, out2334, out2444, out3333, out3344, out4444
+                               ))
+        # full coefficients, vertical, swap x -> y, x0 -> y0, i.e., 1 -> 2, 3 -> 4, keep 0
+        # note h22 = -h11, h44 = -h33
+        out000 = np.append([[N, 0], [0, 0], [0, 0]], np.vstack((s, h000)).T, axis=0)
+        out001 = np.append([[N, 0], [0, 0], [0, 1]], np.vstack((s, h002)).T, axis=0)
+        out003 = np.append([[N, 0], [0, 0], [0, 3]], np.vstack((s, h004)).T, axis=0)
+        out011 = np.append([[N, 0], [0, 0], [0, 11]], np.vstack((s, -h011)).T, axis=0)
+        out013 = np.append([[N, 0], [0, 0], [0, 13]], np.vstack((s, h024)).T, axis=0)
+        out024 = np.append([[N, 0], [0, 0], [0, 24]], np.vstack((s, h013)).T, axis=0)
+        out033 = np.append([[N, 0], [0, 0], [0, 33]], np.vstack((s, -h033)).T, axis=0)
+        out122 = np.append([[N, 0], [0, 0], [0, 122]], np.vstack((s, h112)).T, axis=0)
+        out223 = np.append([[N, 0], [0, 0], [0, 223]], np.vstack((s, h114)).T, axis=0)
+        out144 = np.append([[N, 0], [0, 0], [0, 144]], np.vstack((s, h233)).T, axis=0)
+        out344 = np.append([[N, 0], [0, 0], [0, 344]], np.vstack((s, h334)).T, axis=0)
+        out124 = np.append([[N, 0], [0, 0], [0, 124]], np.vstack((s, h123)).T, axis=0)
+        out234 = np.append([[N, 0], [0, 0], [0, 234]], np.vstack((s, h134)).T, axis=0)
+        out111 = np.append([[N, 0], [0, 0], [0, 111]], np.vstack((s, h222)).T, axis=0)
+        out113 = np.append([[N, 0], [0, 0], [0, 113]], np.vstack((s, h224)).T, axis=0)
+        out133 = np.append([[N, 0], [0, 0], [0, 133]], np.vstack((s, h244)).T, axis=0)
+        out333 = np.append([[N, 0], [0, 0], [0, 333]], np.vstack((s, h444)).T, axis=0)
+        out2222 = np.append([[N, 0], [0, 0], [0, 2222]], np.vstack((s, h1111)).T, axis=0)
+        out2224 = np.append([[N, 0], [0, 0], [0, 2224]], np.vstack((s, h1113)).T, axis=0)
+        out1122 = np.append([[N, 0], [0, 0], [0, 1122]], np.vstack((s, h1122)).T, axis=0)
+        out1223 = np.append([[N, 0], [0, 0], [0, 1223]], np.vstack((s, h1124)).T, axis=0)
+        out2244 = np.append([[N, 0], [0, 0], [0, 2244]], np.vstack((s, h1133)).T, axis=0)
+        out2233 = np.append([[N, 0], [0, 0], [0, 2233]], np.vstack((s, h1144)).T, axis=0)
+        out1124 = np.append([[N, 0], [0, 0], [0, 1124]], np.vstack((s, h1223)).T, axis=0)
+        out1234 = np.append([[N, 0], [0, 0], [0, 1234]], np.vstack((s, h1234)).T, axis=0)
+        out2444 = np.append([[N, 0], [0, 0], [0, 2444]], np.vstack((s, h1333)).T, axis=0)
+        out2334 = np.append([[N, 0], [0, 0], [0, 2334]], np.vstack((s, h1344)).T, axis=0)
+        out1111 = np.append([[N, 0], [0, 0], [0, 1111]], np.vstack((s, h2222)).T, axis=0)
+        out1113 = np.append([[N, 0], [0, 0], [0, 1113]], np.vstack((s, h2224)).T, axis=0)
+        out1144 = np.append([[N, 0], [0, 0], [0, 1144]], np.vstack((s, h2233)).T, axis=0)
+        out1133 = np.append([[N, 0], [0, 0], [0, 1133]], np.vstack((s, h2244)).T, axis=0)
+        out1344 = np.append([[N, 0], [0, 0], [0, 1344]], np.vstack((s, h2334)).T, axis=0)
+        out1333 = np.append([[N, 0], [0, 0], [0, 1333]], np.vstack((s, h2444)).T, axis=0)
+        out4444 = np.append([[N, 0], [0, 0], [0, 4444]], np.vstack((s, h3333)).T, axis=0)
+        out3344 = np.append([[N, 0], [0, 0], [0, 3344]], np.vstack((s, h3344)).T, axis=0)
+        out3333 = np.append([[N, 0], [0, 0], [0, 3333]], np.vstack((s, h4444)).T, axis=0)
+
+        wake_vert = np.vstack(([[36, 0]], out000, out001, out003, out011, out013, out024, out033,
+                               out122, out223, out144, out344, out124, out234, out111, out113, out133, out333,
+                               out2222, out2224, out1122, out1223, out2244, out2233, out1124, out1234, out2444, out2334,
+                               out1111, out1113, out1144, out1133, out1344, out1333, out4444, out3344, out3333
+                               ))
+        return wake_horz, wake_vert
 
 
 class Wake4(Wake3):
@@ -2006,18 +2089,10 @@ class Wake4(Wake3):
         self.TH = None
 
     def add_total_wake(self, X, Y, Z, q, TH, Ns, NF):
-        T, H4 = TH
+        T, H = TH
         # orders 0-3 use the Wake3 layout stored in H[0]
-        Px, Py, Pz, I00 = Wake3.add_total_wake(self, X, Y, Z, q, (T, H4[0]), Ns, NF)
-        dPx, dPy, dPz = self._add_fourth_order(X, Y, Z, q, T, H4, Ns, NF)
-        return Px + dPx, Py + dPy, Pz + dPz, I00
-
-    def _add_fourth_order(self, X, Y, Z, q, T, H, Ns, NF):
+        Px, Py, Pz, I00 = Wake3.add_total_wake(self, X, Y, Z, q, (T, H[0]), Ns, NF)
         c = glb.speed_of_light
-        Np = X.shape[0]
-        Px = np.zeros(Np)
-        Py = np.zeros(Np)
-        Pz = np.zeros(Np)
 
         X2 = X ** 2
         Y2 = Y ** 2
@@ -2320,7 +2395,7 @@ class Wake4(Wake3):
             Px = Px + np.interp(Z, x, Wx, 0, 0) * (X * Y2)
             Py = Py + np.interp(Z, x, Wy, 0, 0) * (X2 * Y)
 
-        return Px, Py, Pz
+        return Px, Py, Pz, I00
 
     def get_long_wake(self, current_profile):
         T, H = self.TH
